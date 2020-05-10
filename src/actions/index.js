@@ -1,4 +1,18 @@
+import _ from 'lodash';
+
 import jsonPlaceHolder from '../APIs/jsonPlaceHolder';
+
+export const fetchPostsAndUsers = () => async (dispatch, getState) => {
+    await dispatch(fetchPosts());
+    // const userIds = _.uniq(_.map(getState().posts, 'userId'));
+    // userIds.forEach(id => dispatch(fetchUser(id)));
+
+    _.chain(getState().posts)
+        .map('userId')
+        .uniq()
+        .forEach(id => dispatch(fetchUser(id)))
+        .value();
+};
 
 export const fetchPosts = () => async (dispatch) => {
     const response = await jsonPlaceHolder.get('/posts');
@@ -15,3 +29,13 @@ export const fetchUser = (id) => async dispatch => {
         payload: response.data
     });
 };
+
+
+// memoize version
+// const _fetchUser = _.memoize(async (id, dispatch) => {
+//     const response = await jsonPlaceHolder.get(`/users/${id}`);
+//     dispatch({
+//         type: 'FETCH_USER',
+//         payload: response.data
+//     });
+// });
